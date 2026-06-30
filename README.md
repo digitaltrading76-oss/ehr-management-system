@@ -1,10 +1,10 @@
-# EHR Master v6 Hard Separated Routes
+# EHR Master v6 Embedded Human Resource
 
-This version fully separates Coordinator and Central Command routes.
+This version fully separates Coordinator and EHR Command Center routes.
 
 ## Critical Security Fix
 
-Coordinator submit no longer redirects to Central Command.
+Coordinator submit no longer redirects to EHR Command Center.
 
 Coordinator routes:
 - /coordinator-dashboard
@@ -12,7 +12,7 @@ Coordinator routes:
 - /coordinator-submitted/{case_id}
 - /coordinator-file/{case_id}/{filename}
 
-Central Command routes:
+EHR Command Center routes:
 - /dashboard
 - /central-queue
 - /case/{case_id}
@@ -20,11 +20,11 @@ Central Command routes:
 - /bulk-operations
 - /executive-report
 
-Coordinator accounts are blocked from every Central Command route.
+Coordinator accounts are blocked from every EHR Command Center route.
 
 ## Logins
 
-Central Command:
+EHR Command Center:
 administrator / Conglomerate@2026
 hr001 / Hr@2026
 
@@ -57,7 +57,7 @@ Changed files:
 
 Fix:
 - Removed messy raw JSON from Full Structured Assessment.
-- Replaced with clean HR report sections, tables, color-coded scores, due process checklist, policy assessment, labor standards review, missing requirements, uploaded files, and recommended next move.
+- Replaced with clean HR report sections, tables, color-coded scores, HR review checklist, policy assessment, labor standards review, missing requirements, uploaded files, and recommended next move.
 
 
 ## v6.2 Coordinator Status / Notice Workflow
@@ -69,9 +69,9 @@ Changed files:
 - backend/static/css/style.css
 
 Fix:
-- Coordinator dashboard status now shows: Waiting for Central Command Notification.
+- Coordinator dashboard status now shows: Waiting for EHR Command Center Notification.
 - Clicking status opens a coordinator-only status detail page.
-- Central Command can upload memo/notice files to coordinator portal.
+- EHR Command Center can upload memo/notice files to coordinator portal.
 - Coordinator can download notice/memo files and serve/receive them with the worker.
 
 
@@ -83,5 +83,19 @@ Changed files:
 - backend/static/css/style.css
 
 Fix:
-- After Central Command uploads/sends a memo, notice, or status file, the case detail page now shows a green success acknowledgement.
+- After EHR Command Center uploads/sends a memo, notice, or status file, the case detail page now shows a green success acknowledgement.
 - A browser pop-up alert also confirms the memo/notice was sent successfully to the coordinator portal.
+
+
+## v6.4 Clean Wording Update
+
+Changed files:
+- backend/main.py
+- backend/static/*.html
+- backend/static/css/style.css
+
+Updates:
+- Replaced repeated visible “due process” wording with cleaner HR terms such as Case Review, HR Review, Review Completion, and Labor Standards Check.
+- Removed technical phrase “Hard Separated Routes” from the login and visible pages.
+- Removed coordinator portal warning text saying coordinator cannot access EHR Command Center pages.
+- Simplified branding to EHR / Embedded Human Resource.

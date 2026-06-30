@@ -6,12 +6,12 @@
 </head>
 <body>
 <div class="app">
-<div class="sidebar"><div class="brand"><img class="brand-logo" src="/static/images/conglomerate_logo_icon.png"><div><h2>EHR CENTRAL COMMAND</h2><p>Embedded Human Resource<br>Powered by Conglomerate Corp</p></div></div><div class="menu-title">Central Command</div><a href="/dashboard">🏠 Dashboard</a><a class="active" href="/central-queue">📥 Central Case Queue</a><a href="/bulk-operations">📦 Bulk Operations</a><a href="/executive-report">📈 Executive Report</a><a href="#">⚖️ NTE & Decisions</a><a href="/logout">↪ Logout</a></div>
+<div class="sidebar"><div class="brand"><img class="brand-logo" src="/static/images/conglomerate_logo_icon.png"><div><h2>EHR</h2><p>Embedded Human Resource<br>Powered by Conglomerate Corp</p></div></div><div class="menu-title">EHR Command Center</div><a href="/dashboard">🏠 Dashboard</a><a class="active" href="/central-queue">📥 Central Case Queue</a><a href="/bulk-operations">📦 Bulk Operations</a><a href="/executive-report">📈 Executive Report</a><a href="#">⚖️ NTE & Decisions</a><a href="/logout">↪ Logout</a></div>
 <main class="main">
   <div class="header">
     <div class="header-left">
       <h1>Central Case Detail: {{CASE_ID}}</h1>
-      <p>Clean HR assessment report based on uploaded files, company policy, labor standards, and due process.</p>
+      <p>Clean HR assessment report based on uploaded files, company policy, labor standards, and HR review.</p>
     </div>
     <div class="header-right">
       <a class="btn" href="/central-queue">Back to Queue</a>
@@ -31,7 +31,7 @@
       <div class="card metric-card orange">
         <div class="icon orange-bg">⚖️</div>
         <div>
-          <h3>Due Process</h3>
+          <h3>HR Review</h3>
           <div class="num">{{DUE_PROCESS}}%</div>
           <small>{{STATUS}}</small>
         </div>
@@ -57,7 +57,7 @@
       <div class="score-box"><span>Company Policy Match</span><strong>{{POLICY_SCORE}}%</strong></div>
       <div class="score-box"><span>Labor Standards Relevance</span><strong>{{LABOR_SCORE}}%</strong></div>
       <div class="score-box"><span>Evidence Sufficiency</span><strong>{{EVIDENCE_SCORE}}%</strong></div>
-      <div class="score-box"><span>Due Process Completion</span><strong>{{DUE_PROCESS_SCORE}}%</strong></div>
+      <div class="score-box"><span>HR Review Completion</span><strong>{{DUE_PROCESS_SCORE}}%</strong></div>
       <div class="score-box"><span>Overall Readiness</span><strong>{{OVERALL_SCORE}}%</strong></div>
     </div>
 
@@ -76,7 +76,7 @@
 
     <div class="assessment-section">
       <h3>Uploaded Supporting Files</h3>
-      <p>Central Command can open or download the actual files submitted by the coordinator.</p>
+      <p>EHR Command Center can open or download the actual files submitted by the coordinator.</p>
       <ul>{{FILE_LIST}}</ul>
     </div>
 
@@ -86,7 +86,7 @@
     </div>
 
     <div class="assessment-section">
-      <h3>Due Process Checklist</h3>
+      <h3>Case Review Checklist</h3>
       <table class="table">
         <thead>
           <tr><th>Requirement</th><th>Status</th></tr>
@@ -116,7 +116,7 @@
     </div>
 
     <div class="assessment-section">
-      <h3>Philippine Labor Standards Review</h3>
+      <h3>Labor Standards Check</h3>
       <table class="table">
         <thead>
           <tr><th>Labor Category</th><th>Legal Note</th></tr>
@@ -131,7 +131,7 @@
     </div>
 
     <div class="assessment-section">
-      <h3>Due Process Safeguard</h3>
+      <h3>HR Review Safeguard</h3>
       <div class="safeguard-box">{{SAFEGUARD}}</div>
     </div>
 
@@ -145,7 +145,7 @@
           <div>
             <label>Status / Notice Type</label>
             <select name="notice_type">
-              <option>Waiting for Central Command Notification</option>
+              <option>Waiting for EHR Command Center Notification</option>
               <option>Additional Documents Required</option>
               <option>Notice to Explain Issued</option>
               <option>Notice of Decision Uploaded</option>
@@ -166,9 +166,9 @@
     </div>
 
     <div class="assessment-section">
-      <h3>Central Command Actions</h3>
+      <h3>EHR Command Center Actions</h3>
       <a class="btn">Request Missing Documents</a>
-      <a class="btn gold">Prepare NTE Only If Due Process Ready</a>
+      <a class="btn gold">Prepare NTE If Review Is Ready</a>
     </div>
   </div>
 </main>

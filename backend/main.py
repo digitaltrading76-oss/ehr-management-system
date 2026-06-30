@@ -131,7 +131,7 @@ def central_case_detail(case_id:str, request:Request):
         "EVIDENCE_SCORE":scores.get("evidence_sufficiency",0),
         "DUE_PROCESS_SCORE":scores.get("due_process_completion",0),
         "OVERALL_SCORE":scores.get("overall_readiness",0),
-        "SAFEGUARD":a.get("safeguard","No final disciplinary action should be recommended until due process is completed."),
+        "SAFEGUARD":a.get("safeguard","No final disciplinary action should be recommended until the worker has been properly notified and given an opportunity to respond."),
         "NOTICE_ACK":f"<div class='success-alert'>✅ {sent_type or 'Memo / notice'} has been sent successfully to the coordinator portal.</div>" if notice_sent else ""
     })
 
@@ -183,7 +183,7 @@ def download_monthly_report(request:Request):
     output=io.StringIO()
     writer=csv.writer(output)
     writer.writerow(["Metric","Value","Notes"])
-    writer.writerows([["Open Cases",str(len(load_cases())),"Live submissions"],["Due Process","Enabled","No final action without worker due process"],["Bulk Operations","Enabled","Excel/CSV intake"],["Executive Reporting","Enabled","BI dashboard"]])
+    writer.writerows([["Open Cases",str(len(load_cases())),"Live submissions"],["HR Review Safeguard","Enabled","No final action without worker notice and opportunity to respond"],["Bulk Operations","Enabled","Excel/CSV intake"],["Executive Reporting","Enabled","BI dashboard"]])
     return StreamingResponse(iter([output.getvalue()]), media_type="text/csv", headers={"Content-Disposition":"attachment; filename=ehr_monthly_operations_report.csv"})
 
 # ---------------- COORDINATOR ONLY ----------------
@@ -226,7 +226,7 @@ async def submit_incident_post(request:Request, worker_name:str=Form(""), worker
 
     assessment=assess_case(worker_name,worker_type,incident_category,extracted_text,uploaded,u["username"],u["area"])
     scores=assessment["scores"]
-    status="Due Process Incomplete" if scores["due_process_completion"]<45 else "Ready for Central Review" if scores["overall_readiness"]>=70 else "Needs Follow-up"
+    status="Review Incomplete" if scores["due_process_completion"]<45 else "Ready for Central Review" if scores["overall_readiness"]>=70 else "Needs Follow-up"
     case={"case_id":case_id,"submitted_at":datetime.datetime.now().isoformat(timespec="seconds"),"submitted_by":u["username"],"area":u["area"],"worker_name":worker_name,"worker_type":worker_type,"incident_category":incident_category,"upload_mode":upload_mode,"extracted_text":extracted_text,"uploaded_files":uploaded,"assessment":assessment,"due_process_score":scores["due_process_completion"],"overall_readiness":scores["overall_readiness"],"recommended_next_move":assessment["recommended_next_move"],"status":status,"coordinator_status":"Waiting for Central Command Notification","central_notices":[]}
     cases=load_cases(); cases.append(case); save_json(CASES_FILE,cases)
 
