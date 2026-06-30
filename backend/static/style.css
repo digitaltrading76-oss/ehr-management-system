@@ -9,3 +9,29 @@ pre{background:#111827;color:#d1fae5;padding:18px;border-radius:12px;overflow-x:
 .risk{padding:18px;border-radius:16px;color:white;font-weight:800}.risk.green{background:linear-gradient(135deg,#16a34a,#22c55e)}.risk.orange{background:linear-gradient(135deg,#f59e0b,#f97316)}.risk.red{background:linear-gradient(135deg,#dc2626,#991b1b)}.leader{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border)}.leader:last-child{border-bottom:0}.rank{font-size:22px}.print-only{display:none}
 @media print{.sidebar,.header,.no-print{display:none!important}.main{margin:0;width:100%}.content{padding:0}.card{box-shadow:none;break-inside:avoid}.print-only{display:block}}
 @media(max-width:1100px){.metrics,.panel-row{grid-template-columns:1fr 1fr}.dashboard-grid{grid-template-columns:1fr}.sidebar{position:relative;width:100%;height:auto}.main{margin-left:0;width:100%}.app{display:block}}@media(max-width:700px){.metrics,.panel-row,.form-row{grid-template-columns:1fr}.header{height:auto;padding:18px}.content{padding:18px}}
+
+
+.brand-logo-img{
+  width:54px;
+  height:54px;
+  object-fit:contain;
+  border-radius:14px;
+  background:white;
+  padding:4px;
+  box-shadow:0 4px 12px rgba(0,0,0,.18);
+}
+.login-logo-img{
+  width:118px;
+  height:118px;
+  object-fit:contain;
+  margin:0 auto 14px;
+  display:block;
+}
+.report-logo-img{
+  width:86px;
+  height:86px;
+  object-fit:contain;
+  background:white;
+  border-radius:12px;
+  padding:4px;
+}
