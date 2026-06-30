@@ -1,1 +1,175 @@
-<!DOCTYPE html><html><head><title>Central Case Detail</title><link rel="stylesheet" href="/static/css/style.css"></head><body><div class="app"><div class="sidebar"><div class="brand"><img class="brand-logo" src="/static/images/conglomerate_logo_icon.png"><div><h2>EHR CENTRAL COMMAND</h2><p>Embedded Human Resource<br>Powered by Conglomerate Corp</p></div></div><div class="menu-title">Central Command</div><a href="/dashboard">🏠 Dashboard</a><a class="active" href="/central-queue">📥 Central Case Queue</a><a href="/bulk-operations">📦 Bulk Operations</a><a href="/executive-report">📈 Executive Report</a><a href="#">⚖️ NTE & Decisions</a><a href="/logout">↪ Logout</a></div><main class="main"><div class="header"><div class="header-left"><h1>Central Case Detail: {{CASE_ID}}</h1><p>Central Command assessment based on uploaded files.</p></div><div class="header-right"><a class="btn" href="/central-queue">Back to Queue</a></div></div><div class="content"><div class="metrics"><div class="card metric-card blue"><div class="icon blue-bg">👤</div><div><h3>Worker</h3><div class="num" style="font-size:20px">{{WORKER_NAME}}</div><small>{{WORKER_TYPE}}</small></div></div><div class="card metric-card orange"><div class="icon orange-bg">⚖️</div><div><h3>Due Process</h3><div class="num">{{DUE_PROCESS}}%</div><small>{{STATUS}}</small></div></div><div class="card metric-card green"><div class="icon green-bg">📊</div><div><h3>Readiness</h3><div class="num">{{READINESS}}%</div><small>Central score</small></div></div><div class="card metric-card red"><div class="icon red-bg">➡</div><div><h3>Next Move</h3><div style="font-weight:800">{{NEXT_MOVE}}</div></div></div></div><div class="dashboard-grid"><div><div class="card"><h3>Uploaded Supporting Files</h3><ul>{{FILE_LIST}}</ul></div><div class="card"><h3>Extracted Content Preview</h3><pre>{{EXTRACTED_PREVIEW}}</pre></div><div class="card"><h3>Due Process Checklist</h3><table class="table"><tbody>{{CHECKLIST}}</tbody></table></div></div><div><div class="card"><h3>Company Policy Assessment</h3><ul>{{POLICY_LIST}}</ul></div><div class="card"><h3>Philippine Labor Standards Review</h3><ul>{{LABOR_LIST}}</ul></div><div class="card"><h3>Central Command Action</h3><div class="risk">{{NEXT_MOVE}}</div><br><a class="btn full">Request Missing Documents</a><a class="btn full gold">Prepare NTE Only If Due Process Ready</a></div></div></div><div class="card"><h3>Full Structured Assessment</h3><pre>{{ASSESSMENT}}</pre></div></div></main></div></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Central Case Detail</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+<div class="sidebar"><div class="brand"><img class="brand-logo" src="/static/images/conglomerate_logo_icon.png"><div><h2>EHR CENTRAL COMMAND</h2><p>Embedded Human Resource<br>Powered by Conglomerate Corp</p></div></div><div class="menu-title">Central Command</div><a href="/dashboard">🏠 Dashboard</a><a class="active" href="/central-queue">📥 Central Case Queue</a><a href="/bulk-operations">📦 Bulk Operations</a><a href="/executive-report">📈 Executive Report</a><a href="#">⚖️ NTE & Decisions</a><a href="/logout">↪ Logout</a></div>
+<main class="main">
+  <div class="header">
+    <div class="header-left">
+      <h1>Central Case Detail: {{CASE_ID}}</h1>
+      <p>Clean HR assessment report based on uploaded files, company policy, labor standards, and due process.</p>
+    </div>
+    <div class="header-right">
+      <a class="btn" href="/central-queue">Back to Queue</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="metrics">
+      <div class="card metric-card blue">
+        <div class="icon blue-bg">👤</div>
+        <div>
+          <h3>Worker</h3>
+          <div class="num" style="font-size:20px">{{WORKER_NAME}}</div>
+          <small>{{WORKER_TYPE}}</small>
+        </div>
+      </div>
+      <div class="card metric-card orange">
+        <div class="icon orange-bg">⚖️</div>
+        <div>
+          <h3>Due Process</h3>
+          <div class="num">{{DUE_PROCESS}}%</div>
+          <small>{{STATUS}}</small>
+        </div>
+      </div>
+      <div class="card metric-card green">
+        <div class="icon green-bg">📊</div>
+        <div>
+          <h3>Overall Readiness</h3>
+          <div class="num">{{READINESS}}%</div>
+          <small>Central review score</small>
+        </div>
+      </div>
+      <div class="card metric-card red">
+        <div class="icon red-bg">➡</div>
+        <div>
+          <h3>Next Move</h3>
+          <div style="font-weight:800">{{NEXT_MOVE}}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-grid">
+      <div class="score-box"><span>Company Policy Match</span><strong>{{POLICY_SCORE}}%</strong></div>
+      <div class="score-box"><span>Labor Standards Relevance</span><strong>{{LABOR_SCORE}}%</strong></div>
+      <div class="score-box"><span>Evidence Sufficiency</span><strong>{{EVIDENCE_SCORE}}%</strong></div>
+      <div class="score-box"><span>Due Process Completion</span><strong>{{DUE_PROCESS_SCORE}}%</strong></div>
+      <div class="score-box"><span>Overall Readiness</span><strong>{{OVERALL_SCORE}}%</strong></div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Case Information</h3>
+      <table class="table">
+        <tbody>
+          <tr><th>Case ID</th><td>{{CASE_ID}}</td></tr>
+          <tr><th>Worker Name</th><td>{{WORKER_NAME}}</td></tr>
+          <tr><th>Worker Type</th><td>{{WORKER_TYPE}}</td></tr>
+          <tr><th>Area</th><td>{{AREA}}</td></tr>
+          <tr><th>Incident Category</th><td>{{INCIDENT_CATEGORY}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Uploaded Supporting Files</h3>
+      <p>Central Command can open or download the actual files submitted by the coordinator.</p>
+      <ul>{{FILE_LIST}}</ul>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Recommended Next Move</h3>
+      <div class="recommendation-box">{{NEXT_MOVE}}</div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Due Process Checklist</h3>
+      <table class="table">
+        <thead>
+          <tr><th>Requirement</th><th>Status</th></tr>
+        </thead>
+        <tbody>{{CHECKLIST}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Missing Requirements / Follow-up Needed</h3>
+      <ul>{{MISSING_LIST}}</ul>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Company Policy Assessment</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Policy Category</th>
+            <th>Possible Violation</th>
+            <th>Policy Basis</th>
+            <th>Usual Next Step</th>
+          </tr>
+        </thead>
+        <tbody>{{POLICY_ROWS}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Philippine Labor Standards Review</h3>
+      <table class="table">
+        <thead>
+          <tr><th>Labor Category</th><th>Legal Note</th></tr>
+        </thead>
+        <tbody>{{LABOR_ROWS}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Extracted Content Preview</h3>
+      <div class="preview-box">{{EXTRACTED_PREVIEW}}</div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Due Process Safeguard</h3>
+      <div class="safeguard-box">{{SAFEGUARD}}</div>
+    </div>
+
+
+    <div class="assessment-section">
+      <h3>Send Status / Memo / Notice to Coordinator Portal</h3>
+      <form method="post" action="/case/{{CASE_ID}}/central-notice" enctype="multipart/form-data">
+        <div class="form-row">
+          <div>
+            <label>Status / Notice Type</label>
+            <select name="notice_type">
+              <option>Waiting for Central Command Notification</option>
+              <option>Additional Documents Required</option>
+              <option>Notice to Explain Issued</option>
+              <option>Notice of Decision Uploaded</option>
+              <option>Notice of Dismissal Uploaded</option>
+              <option>Floating Status Notice Uploaded</option>
+              <option>Case Closed</option>
+            </select>
+          </div>
+          <div>
+            <label>Upload Memo / Notice File</label>
+            <input type="file" name="notice_file" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+          </div>
+        </div>
+        <label>Explanation / Instruction to Coordinator</label>
+        <textarea name="remarks" placeholder="Example: Please print this memo, serve it to the worker, and upload signed receiving copy."></textarea>
+        <button class="btn" type="submit">SEND TO COORDINATOR PORTAL</button>
+      </form>
+    </div>
+
+    <div class="assessment-section">
+      <h3>Central Command Actions</h3>
+      <a class="btn">Request Missing Documents</a>
+      <a class="btn gold">Prepare NTE Only If Due Process Ready</a>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>

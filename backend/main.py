@@ -102,11 +102,35 @@ def central_case_detail(case_id:str, request:Request):
     case=next((c for c in load_cases() if c["case_id"]==case_id),None)
     if not case: return HTMLResponse("Case not found",404)
     a=case["assessment"]
-    checklist="".join([f"<tr><td>{x['item']}</td><td>{'✅ Complete' if x['status'] else '❌ Missing / Pending'}</td></tr>" for x in a["due_process_checklist"]])
-    policy="".join([f"<li><strong>{x.get('possible_violation','')}</strong><br>{x.get('policy_basis','')}<br><em>{x.get('usual_next_step','')}</em></li>" for x in a["policy_assessment"]])
-    labor="".join([f"<li><strong>{x.get('labor_category','')}</strong><br>{x.get('legal_note','')}</li>" for x in a["labor_standards_review"]])
+    checklist="".join([f"<tr><td>{x['item']}</td><td><span class='status-ok'>✅ Complete</span></td></tr>" if x["status"] else f"<tr><td>{x['item']}</td><td><span class='status-missing'>❌ Missing / Pending</span></td></tr>" for x in a["due_process_checklist"]])
+    policy_rows="".join([f"<tr><td>{x.get('policy_category','')}</td><td>{x.get('possible_violation','')}</td><td>{x.get('policy_basis','')}</td><td>{x.get('usual_next_step','')}</td></tr>" for x in a["policy_assessment"]])
+    labor_rows="".join([f"<tr><td>{x.get('labor_category','')}</td><td>{x.get('legal_note','')}</td></tr>" for x in a["labor_standards_review"]])
+    missing_rows="".join([f"<li>{m}</li>" for m in a.get("missing_requirements",[])]) or "<li>No missing requirement identified.</li>"
     files="".join([f"<li><a href='/case-file/{case_id}/{f}'>{f}</a></li>" for f in case.get("uploaded_files",[])]) or "<li>No uploaded file</li>"
-    return render("case_detail.html",request,{"CASE_ID":case_id,"WORKER_NAME":case["worker_name"],"WORKER_TYPE":case["worker_type"],"AREA":case["area"],"INCIDENT_CATEGORY":case["incident_category"],"EXTRACTED_PREVIEW":a.get("extracted_content_preview",""),"DUE_PROCESS":case["due_process_score"],"READINESS":case["overall_readiness"],"STATUS":case["status"],"NEXT_MOVE":case["recommended_next_move"],"CHECKLIST":checklist,"POLICY_LIST":policy,"LABOR_LIST":labor,"FILE_LIST":files,"ASSESSMENT":json.dumps(a,indent=2)})
+    scores=a.get("scores",{})
+    return render("case_detail.html",request,{
+        "CASE_ID":case_id,
+        "WORKER_NAME":case["worker_name"],
+        "WORKER_TYPE":case["worker_type"],
+        "AREA":case["area"],
+        "INCIDENT_CATEGORY":case["incident_category"],
+        "EXTRACTED_PREVIEW":a.get("extracted_content_preview",""),
+        "DUE_PROCESS":case["due_process_score"],
+        "READINESS":case["overall_readiness"],
+        "STATUS":case["status"],
+        "NEXT_MOVE":case["recommended_next_move"],
+        "CHECKLIST":checklist,
+        "POLICY_ROWS":policy_rows,
+        "LABOR_ROWS":labor_rows,
+        "MISSING_LIST":missing_rows,
+        "FILE_LIST":files,
+        "POLICY_SCORE":scores.get("company_policy_match",0),
+        "LABOR_SCORE":scores.get("labor_standards_relevance",0),
+        "EVIDENCE_SCORE":scores.get("evidence_sufficiency",0),
+        "DUE_PROCESS_SCORE":scores.get("due_process_completion",0),
+        "OVERALL_SCORE":scores.get("overall_readiness",0),
+        "SAFEGUARD":a.get("safeguard","No final disciplinary action should be recommended until due process is completed.")
+    })
 
 @app.get("/case-file/{case_id}/{filename}")
 def central_case_file(case_id:str, filename:str, request:Request):
@@ -166,7 +190,7 @@ def coordinator_dashboard(request:Request):
     if not u: return RedirectResponse("/",302)
     if u["role"]!="coordinator": return RedirectResponse("/dashboard",302)
     my=[c for c in load_cases() if c["submitted_by"]==u["username"]]
-    rows="".join([f"<tr><td><a href='/coordinator-submitted/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>" for c in my[::-1]]) or "<tr><td colspan='6'>No submitted incident yet.</td></tr>"
+    rows="".join([f"<tr><td><a href='/coordinator-submitted/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td><a class='pill waiting' href='/coordinator-status/{c['case_id']}'>{c.get('coordinator_status','Waiting for Central Command Notification')}</a></td></tr>" for c in my[::-1]]) or "<tr><td colspan='6'>No submitted incident yet.</td></tr>"
     return render("coordinator_dashboard.html",request,{"MY_CASE_ROWS":rows,"MY_CASE_COUNT":len(my)})
 
 @app.get("/submit-incident", response_class=HTMLResponse)
@@ -200,7 +224,7 @@ async def submit_incident_post(request:Request, worker_name:str=Form(""), worker
     assessment=assess_case(worker_name,worker_type,incident_category,extracted_text,uploaded,u["username"],u["area"])
     scores=assessment["scores"]
     status="Due Process Incomplete" if scores["due_process_completion"]<45 else "Ready for Central Review" if scores["overall_readiness"]>=70 else "Needs Follow-up"
-    case={"case_id":case_id,"submitted_at":datetime.datetime.now().isoformat(timespec="seconds"),"submitted_by":u["username"],"area":u["area"],"worker_name":worker_name,"worker_type":worker_type,"incident_category":incident_category,"upload_mode":upload_mode,"extracted_text":extracted_text,"uploaded_files":uploaded,"assessment":assessment,"due_process_score":scores["due_process_completion"],"overall_readiness":scores["overall_readiness"],"recommended_next_move":assessment["recommended_next_move"],"status":status}
+    case={"case_id":case_id,"submitted_at":datetime.datetime.now().isoformat(timespec="seconds"),"submitted_by":u["username"],"area":u["area"],"worker_name":worker_name,"worker_type":worker_type,"incident_category":incident_category,"upload_mode":upload_mode,"extracted_text":extracted_text,"uploaded_files":uploaded,"assessment":assessment,"due_process_score":scores["due_process_completion"],"overall_readiness":scores["overall_readiness"],"recommended_next_move":assessment["recommended_next_move"],"status":status,"coordinator_status":"Waiting for Central Command Notification","central_notices":[]}
     cases=load_cases(); cases.append(case); save_json(CASES_FILE,cases)
 
     # HARD RULE: coordinator goes only to coordinator route, never /case
@@ -226,6 +250,86 @@ def coordinator_file(case_id:str, filename:str, request:Request):
     path=UPLOAD_DIR/case_id/os.path.basename(filename)
     if not path.exists(): return HTMLResponse("File not found",404)
     return FileResponse(path, filename=filename)
+
+
+@app.get("/coordinator-status/{case_id}", response_class=HTMLResponse)
+def coordinator_status_detail(case_id:str, request:Request):
+    u=current_user(request)
+    if not u: return RedirectResponse("/",302)
+    if u["role"]!="coordinator": return RedirectResponse("/access-denied",302)
+
+    case=next((c for c in load_cases() if c["case_id"]==case_id and c["submitted_by"]==u["username"]), None)
+    if not case: return RedirectResponse("/access-denied",302)
+
+    notices=case.get("central_notices",[])
+    if notices:
+        notice_rows="".join([
+            f"<tr><td>{n.get('notice_type','Notice')}</td><td>{n.get('remarks','')}</td><td>{n.get('uploaded_at','')}</td><td><a class='btn' href='/coordinator-notice-file/{case_id}/{n.get('filename','')}'>Download</a></td></tr>"
+            for n in notices
+        ])
+    else:
+        notice_rows="<tr><td colspan='4'>No memo, notice, or document uploaded yet by Central Command.</td></tr>"
+
+    return render("coordinator_status_detail.html", request, {
+        "CASE_ID":case_id,
+        "WORKER_NAME":case.get("worker_name",""),
+        "WORKER_TYPE":case.get("worker_type",""),
+        "INCIDENT_CATEGORY":case.get("incident_category",""),
+        "COORDINATOR_STATUS":case.get("coordinator_status","Waiting for Central Command Notification"),
+        "NOTICE_ROWS":notice_rows
+    })
+
+@app.get("/coordinator-notice-file/{case_id}/{filename}")
+def coordinator_notice_file(case_id:str, filename:str, request:Request):
+    u=current_user(request)
+    if not u: return RedirectResponse("/",302)
+    if u["role"]!="coordinator": return RedirectResponse("/access-denied",302)
+
+    case=next((c for c in load_cases() if c["case_id"]==case_id and c["submitted_by"]==u["username"]), None)
+    if not case: return RedirectResponse("/access-denied",302)
+
+    allowed=[n.get("filename") for n in case.get("central_notices",[])]
+    if filename not in allowed:
+        return RedirectResponse("/access-denied",302)
+
+    path=UPLOAD_DIR/case_id/"central_notices"/os.path.basename(filename)
+    if not path.exists(): return HTMLResponse("File not found",404)
+    return FileResponse(path, filename=filename)
+
+@app.post("/case/{case_id}/central-notice")
+async def upload_central_notice(case_id:str, request:Request, notice_type:str=Form("Additional Documents Required"), remarks:str=Form(""), notice_file:UploadFile=File(...)):
+    u=current_user(request)
+    if not is_central(request): return RedirectResponse("/access-denied",302)
+
+    cases=load_cases()
+    case=next((c for c in cases if c["case_id"]==case_id), None)
+    if not case: return HTMLResponse("Case not found",404)
+
+    if not notice_file.filename:
+        return RedirectResponse(f"/case/{case_id}",302)
+
+    notice_dir=UPLOAD_DIR/case_id/"central_notices"
+    notice_dir.mkdir(exist_ok=True)
+
+    safe=os.path.basename(notice_file.filename)
+    content=await notice_file.read()
+    (notice_dir/safe).write_bytes(content)
+
+    if "central_notices" not in case:
+        case["central_notices"]=[]
+
+    case["central_notices"].append({
+        "filename":safe,
+        "notice_type":notice_type,
+        "remarks":remarks,
+        "uploaded_by":u["username"],
+        "uploaded_at":datetime.datetime.now().isoformat(timespec="seconds")
+    })
+
+    case["coordinator_status"]=notice_type
+    save_json(CASES_FILE,cases)
+
+    return RedirectResponse(f"/case/{case_id}",302)
 
 @app.get("/health")
 def health():
