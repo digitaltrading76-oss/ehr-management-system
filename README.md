@@ -1,20 +1,28 @@
-# EHR Live Workflow Demo
+# EHR Due Process Workflow
 
-This version allows you to test the real workflow:
+Embedded Human Resource Central Command System  
+Powered by Conglomerate Corp
 
-1. Login as coordinator:
-   coor001 / Coor@2026
+## Purpose
 
-2. Submit incident report and upload files.
+This version makes Philippine labor due process the core workflow.
 
-3. Logout.
+Coordinator submits incident → system checks:
+- Company policy match
+- Labor standards category
+- Evidence completeness
+- Due process completion
+- Recommended next move
 
-4. Login as Central Command:
-   administrator / Conglomerate@2026
+Central Command reviews the case before any NTE, decision, suspension, or dismissal.
 
-5. Open Central Case Queue.
+## Sample Login
 
-6. Review the uploaded coordinator case and see recommendation.
+Coordinator:
+coor001 / Coor@2026
+
+Central Command:
+administrator / Conglomerate@2026
 
 ## Render Settings
 

@@ -4,10 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 from typing import List
-from assessment_engine import assess_documents
+from policy_engine import assess_case
 import json, os, uuid, datetime
 
-app = FastAPI(title="EHR Live Workflow Demo")
+app = FastAPI(title="EHR Due Process Workflow")
 app.add_middleware(SessionMiddleware, secret_key="temporary-ehr-secret-change-before-production")
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -83,9 +83,9 @@ def dashboard(request:Request):
     if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
     cases=load_cases()
     rows="".join([
-        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td><span class='pill review'>{c['status']}</span></td></tr>"
+        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
         for c in cases[-8:][::-1]
-    ]) or "<tr><td colspan='6'>No coordinator submissions yet.</td></tr>"
+    ]) or "<tr><td colspan='7'>No coordinator submissions yet.</td></tr>"
     return render("central_dashboard.html", request, {"CASE_ROWS":rows, "OPEN_CASES":len(cases)})
 
 @app.get("/central-queue", response_class=HTMLResponse)
@@ -95,9 +95,9 @@ def central_queue(request:Request):
     if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
     cases=load_cases()
     rows="".join([
-        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['readiness_score']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
+        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
         for c in cases[::-1]
-    ]) or "<tr><td colspan='8'>No submitted incidents yet. Login as coor001 and submit a case.</td></tr>"
+    ]) or "<tr><td colspan='9'>No submitted incidents yet. Login as coor001 and submit a case.</td></tr>"
     return render("central_queue.html", request, {"CASE_ROWS":rows})
 
 @app.get("/case/{case_id}", response_class=HTMLResponse)
@@ -110,8 +110,14 @@ def view_case(case_id:str, request:Request):
         return HTMLResponse("Case not found", status_code=404)
     if user["role"]=="coordinator" and case["submitted_by"] != user["username"]:
         return HTMLResponse("Unauthorized", status_code=403)
-    assessment=json.dumps(case["assessment"], indent=2)
-    file_list="".join([f"<li>{f}</li>" for f in case.get("uploaded_files",[])]) or "<li>No uploaded file</li>"
+
+    a=case["assessment"]
+    checklist="".join([f"<tr><td>{x['item']}</td><td>{'✅ Complete' if x['status'] else '❌ Missing / Pending'}</td></tr>" for x in a["due_process_checklist"]])
+    policy="".join([f"<li><strong>{x.get('possible_violation','')}</strong><br>{x.get('policy_basis','')}<br><em>{x.get('usual_next_step','')}</em></li>" for x in a["policy_assessment"]])
+    labor="".join([f"<li><strong>{x.get('labor_category','')}</strong><br>{x.get('legal_note','')}</li>" for x in a["labor_standards_review"]])
+    files="".join([f"<li>{f}</li>" for f in case.get("uploaded_files",[])]) or "<li>No uploaded file</li>"
+    assessment=json.dumps(a, indent=2)
+
     return render("case_detail.html", request, {
         "CASE_ID":case["case_id"],
         "WORKER_NAME":case["worker_name"],
@@ -120,11 +126,15 @@ def view_case(case_id:str, request:Request):
         "AREA":case["area"],
         "INCIDENT_CATEGORY":case["incident_category"],
         "INCIDENT_SUMMARY":case["incident_summary"],
-        "READINESS":case["readiness_score"],
+        "DUE_PROCESS":case["due_process_score"],
+        "READINESS":case["overall_readiness"],
         "STATUS":case["status"],
         "NEXT_MOVE":case["recommended_next_move"],
-        "ASSESSMENT":assessment,
-        "FILE_LIST":file_list
+        "CHECKLIST":checklist,
+        "POLICY_LIST":policy,
+        "LABOR_LIST":labor,
+        "FILE_LIST":files,
+        "ASSESSMENT":assessment
     })
 
 @app.get("/coordinator-dashboard", response_class=HTMLResponse)
@@ -134,9 +144,9 @@ def coordinator_dashboard(request:Request):
     if user["role"]!="coordinator": return RedirectResponse("/dashboard",302)
     cases=[c for c in load_cases() if c["submitted_by"]==user["username"]]
     rows="".join([
-        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['incident_category']}</td><td><span class='pill review'>{c['status']}</span></td></tr>"
+        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
         for c in cases[::-1]
-    ]) or "<tr><td colspan='5'>No submitted incident yet.</td></tr>"
+    ]) or "<tr><td colspan='6'>No submitted incident yet.</td></tr>"
     return render("coordinator_dashboard.html", request, {"MY_CASE_ROWS":rows, "MY_CASE_COUNT":len(cases)})
 
 @app.get("/submit-incident", response_class=HTMLResponse)
@@ -163,7 +173,16 @@ async def submit_incident_post(request:Request, worker_name:str=Form(""), worker
         dest.write_bytes(content)
         uploaded.append({"filename":safe,"content_type":f.content_type})
 
-    assessment=assess_documents(user["username"], user["area"], worker_name, worker_type, incident_category, incident_summary, uploaded)
+    uploaded_names=[x["filename"] for x in uploaded]
+    assessment=assess_case(worker_name, worker_type, incident_category, incident_summary, uploaded_names, user["username"], user["area"])
+
+    scores=assessment["scores"]
+    if scores["due_process_completion"] < 45:
+        status="Due Process Incomplete"
+    elif scores["overall_readiness"] >= 70:
+        status="Ready for Central Review"
+    else:
+        status="Needs Follow-up"
 
     case={
         "case_id":case_id,
@@ -174,11 +193,12 @@ async def submit_incident_post(request:Request, worker_name:str=Form(""), worker
         "worker_type":worker_type,
         "incident_category":incident_category,
         "incident_summary":incident_summary,
-        "uploaded_files":[x["filename"] for x in uploaded],
+        "uploaded_files":uploaded_names,
         "assessment":assessment,
-        "readiness_score":assessment["readiness_score"],
+        "due_process_score":scores["due_process_completion"],
+        "overall_readiness":scores["overall_readiness"],
         "recommended_next_move":assessment["recommended_next_move"],
-        "status":assessment["submission_status"]
+        "status":status
     }
     cases=load_cases()
     cases.append(case)
@@ -187,4 +207,4 @@ async def submit_incident_post(request:Request, worker_name:str=Form(""), worker
 
 @app.get("/health")
 def health():
-    return {"status":"ok","version":"live-workflow-demo"}
+    return {"status":"ok","version":"due-process-workflow"}
