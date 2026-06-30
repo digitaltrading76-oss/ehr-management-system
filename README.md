@@ -23,3 +23,11 @@ coor001 / Coor@2026
 Root Directory: backend
 Build Command: pip install -r requirements.txt
 Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+
+## Security Fix
+
+- Coordinator submission now redirects only to `/coordinator-case/{case_id}`.
+- Coordinators cannot open `/dashboard`, `/central-queue`, `/bulk-operations`, `/executive-report`, or `/case/{case_id}`.
+- Central Command case detail and file access are HR/Admin-only.
+- Coordinator can only view their own submitted case copy and their own uploaded files.

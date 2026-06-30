@@ -103,7 +103,7 @@ def dashboard(request:Request):
     if not require_central(request): return RedirectResponse("/access-denied",302)
     cases=load_cases()
     rows="".join([
-        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
+        f"<tr><td><a href='/coordinator-case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
         for c in cases[-8:][::-1]
     ]) or "<tr><td colspan='7'>No coordinator submissions yet.</td></tr>"
     return render("central_dashboard.html", request, {"CASE_ROWS":rows, "OPEN_CASES":len(cases)})
@@ -114,7 +114,7 @@ def central_queue(request:Request):
     if not require_central(request): return RedirectResponse("/access-denied",302)
     cases=load_cases()
     rows="".join([
-        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
+        f"<tr><td><a href='/coordinator-case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
         for c in cases[::-1]
     ]) or "<tr><td colspan='9'>No submitted incidents yet. Login as coor001 and submit a case.</td></tr>"
     return render("central_queue.html", request, {"CASE_ROWS":rows})
@@ -158,13 +158,46 @@ def view_case(case_id:str, request:Request):
 
 @app.get("/case/{case_id}/file/{filename}")
 def download_case_file(case_id:str, filename:str, request:Request):
+    if not require_central(request): return RedirectResponse("/access-denied",302)
     user=current_user(request)
     if not user: return RedirectResponse("/",302)
     cases=load_cases()
     case=next((c for c in cases if c["case_id"]==case_id), None)
     if not case: return HTMLResponse("Case not found",404)
-    if user["role"]=="coordinator" and case["submitted_by"] != user["username"]:
-        return RedirectResponse("/access-denied",302)
+    path=UPLOAD_DIR/case_id/os.path.basename(filename)
+    if not path.exists(): return HTMLResponse("File not found",404)
+    return FileResponse(path, filename=filename)
+
+
+@app.get("/coordinator-case/{case_id}", response_class=HTMLResponse)
+def coordinator_view_case(case_id:str, request:Request):
+    user=current_user(request)
+    if not user: return RedirectResponse("/",302)
+    if user["role"]!="coordinator": return RedirectResponse("/dashboard",302)
+    cases=load_cases()
+    case=next((c for c in cases if c["case_id"]==case_id and c["submitted_by"]==user["username"]), None)
+    if not case: return RedirectResponse("/access-denied",302)
+
+    files="".join([f"<li><a href='/coordinator-case/{case_id}/file/{f}'>{f}</a></li>" for f in case.get("uploaded_files",[])]) or "<li>No uploaded file</li>"
+    return render("coordinator_case_detail.html", request, {
+        "CASE_ID":case_id,
+        "WORKER_NAME":case["worker_name"],
+        "WORKER_TYPE":case["worker_type"],
+        "INCIDENT_CATEGORY":case["incident_category"],
+        "INCIDENT_SUMMARY":case["incident_summary"],
+        "STATUS":case["status"],
+        "DUE_PROCESS":case["due_process_score"],
+        "FILE_LIST":files
+    })
+
+@app.get("/coordinator-case/{case_id}/file/{filename}")
+def coordinator_download_case_file(case_id:str, filename:str, request:Request):
+    user=current_user(request)
+    if not user: return RedirectResponse("/",302)
+    if user["role"]!="coordinator": return RedirectResponse("/dashboard",302)
+    cases=load_cases()
+    case=next((c for c in cases if c["case_id"]==case_id and c["submitted_by"]==user["username"]), None)
+    if not case: return RedirectResponse("/access-denied",302)
     path=UPLOAD_DIR/case_id/os.path.basename(filename)
     if not path.exists(): return HTMLResponse("File not found",404)
     return FileResponse(path, filename=filename)
@@ -176,7 +209,7 @@ def coordinator_dashboard(request:Request):
     if user["role"]!="coordinator": return RedirectResponse("/dashboard",302)
     cases=[c for c in load_cases() if c["submitted_by"]==user["username"]]
     rows="".join([
-        f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
+        f"<tr><td><a href='/coordinator-case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
         for c in cases[::-1]
     ]) or "<tr><td colspan='6'>No submitted incident yet.</td></tr>"
     return render("coordinator_dashboard.html", request, {"MY_CASE_ROWS":rows, "MY_CASE_COUNT":len(cases)})
