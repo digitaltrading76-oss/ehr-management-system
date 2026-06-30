@@ -136,6 +136,8 @@
     </div>
 
 
+    {{NOTICE_ACK}}
+
     <div class="assessment-section">
       <h3>Send Status / Memo / Notice to Coordinator Portal</h3>
       <form method="post" action="/case/{{CASE_ID}}/central-notice" enctype="multipart/form-data">
@@ -171,5 +173,15 @@
   </div>
 </main>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const alertBox = document.querySelector(".success-alert");
+  if(alertBox){
+    setTimeout(function(){
+      window.alert(alertBox.textContent.trim());
+    }, 300);
+  }
+});
+</script>
 </body>
 </html>

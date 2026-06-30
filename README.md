@@ -73,3 +73,15 @@ Fix:
 - Clicking status opens a coordinator-only status detail page.
 - Central Command can upload memo/notice files to coordinator portal.
 - Coordinator can download notice/memo files and serve/receive them with the worker.
+
+
+## v6.3 Memo Sent Acknowledgement
+
+Changed files:
+- backend/main.py
+- backend/static/case_detail.html
+- backend/static/css/style.css
+
+Fix:
+- After Central Command uploads/sends a memo, notice, or status file, the case detail page now shows a green success acknowledgement.
+- A browser pop-up alert also confirms the memo/notice was sent successfully to the coordinator portal.

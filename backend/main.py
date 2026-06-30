@@ -99,6 +99,8 @@ def central_queue(request:Request):
 @app.get("/case/{case_id}", response_class=HTMLResponse)
 def central_case_detail(case_id:str, request:Request):
     if not is_central(request): return RedirectResponse("/access-denied",302)
+    notice_sent = request.query_params.get("notice_sent") == "1"
+    sent_type = request.query_params.get("notice_type", "")
     case=next((c for c in load_cases() if c["case_id"]==case_id),None)
     if not case: return HTMLResponse("Case not found",404)
     a=case["assessment"]
@@ -129,7 +131,8 @@ def central_case_detail(case_id:str, request:Request):
         "EVIDENCE_SCORE":scores.get("evidence_sufficiency",0),
         "DUE_PROCESS_SCORE":scores.get("due_process_completion",0),
         "OVERALL_SCORE":scores.get("overall_readiness",0),
-        "SAFEGUARD":a.get("safeguard","No final disciplinary action should be recommended until due process is completed.")
+        "SAFEGUARD":a.get("safeguard","No final disciplinary action should be recommended until due process is completed."),
+        "NOTICE_ACK":f"<div class='success-alert'>✅ {sent_type or 'Memo / notice'} has been sent successfully to the coordinator portal.</div>" if notice_sent else ""
     })
 
 @app.get("/case-file/{case_id}/{filename}")
@@ -306,7 +309,7 @@ async def upload_central_notice(case_id:str, request:Request, notice_type:str=Fo
     if not case: return HTMLResponse("Case not found",404)
 
     if not notice_file.filename:
-        return RedirectResponse(f"/case/{case_id}",302)
+        return RedirectResponse(f"/case/{case_id}?notice_sent=1&notice_type={notice_type}",302)
 
     notice_dir=UPLOAD_DIR/case_id/"central_notices"
     notice_dir.mkdir(exist_ok=True)
@@ -329,7 +332,7 @@ async def upload_central_notice(case_id:str, request:Request, notice_type:str=Fo
     case["coordinator_status"]=notice_type
     save_json(CASES_FILE,cases)
 
-    return RedirectResponse(f"/case/{case_id}",302)
+    return RedirectResponse(f"/case/{case_id}?notice_sent=1&notice_type={notice_type}",302)
 
 @app.get("/health")
 def health():

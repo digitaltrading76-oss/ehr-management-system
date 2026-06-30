@@ -27,3 +27,14 @@
 .status-banner{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;color:#1e3a8a;border-radius:18px;padding:22px;margin-bottom:18px}
 .status-banner h2{margin:0 0 8px}
 .notice-table .btn{padding:8px 12px;font-size:13px}
+
+.success-alert{
+  background:#dcfce7;
+  border:1px solid #86efac;
+  color:#166534;
+  border-radius:16px;
+  padding:16px 18px;
+  margin-bottom:18px;
+  font-weight:900;
+  box-shadow:0 8px 22px rgba(22,101,52,.10);
+}
