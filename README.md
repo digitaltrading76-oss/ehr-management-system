@@ -1,23 +1,33 @@
-# EHR Central Command Reporting Update
+# EHR Executive BI Dashboard Update
 
 Includes:
-- Role-based login
-- Central Command executive reporting dashboard
-- Downloadable monthly report as CSV
-- Printable management report page
+- Enterprise-style Central Command dashboard
+- Executive BI report center
+- Color-coded KPI cards
+- Case trend graph
+- Case distribution visual chart
+- Resolution performance bars
+- Coordinator leaderboard
+- Risk indicators
+- Downloadable monthly CSV report
+- Print / Save as PDF report page
 - Coordinator portal
-- Bulk document upload pre-review
+- Bulk incident document pre-review
 
 ## Render Settings
 
-Root Directory: backend
-Build Command: pip install -r requirements.txt
-Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
+Root Directory:
+backend
+
+Build Command:
+pip install -r requirements.txt
+
+Start Command:
+uvicorn main:app --host 0.0.0.0 --port $PORT
 
 ## Logins
 
 administrator / Conglomerate@2026  
 hr001 / Hr@2026  
-hr002 / Hr@2026  
 coor001 / Coor@2026  
 coor002 / Coor@2026

@@ -13,9 +13,11 @@ def assess_documents(submitted_by, area, worker_name, worker_type, incident_cate
         possible.append({"classification":"Parcel / Delivery Operations Issue","review_basis":"Possible performance of duties or negligence depending on proof.","recommended_action":"Require delivery app logs, GPS/timestamp records, parcel status history, and client complaint if any."})
     if not possible:
         possible.append({"classification":"Unclassified Incident","review_basis":"No direct policy match from submitted summary.","recommended_action":"Request more complete facts before forwarding as formal case."})
+
     uploaded_names = [x["filename"] for x in files if x.get("filename")]
     readiness = min(35 + len(uploaded_names)*10 + (15 if len(incident_summary)>120 else 0), 95)
     status = "Ready for Central Command review" if readiness >= 75 else "Can be submitted, but follow-up evidence is likely required" if readiness >= 50 else "Incomplete. Coordinator should add more details before submission"
+
     return {
         "submission_status": status,
         "submitted_by": submitted_by,

@@ -9,6 +9,7 @@ import csv, io
 
 app = FastAPI(title="EHR Central Command System")
 app.add_middleware(SessionMiddleware, secret_key="temporary-ehr-secret-change-before-production")
+
 BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
@@ -33,7 +34,8 @@ def render(filename, request):
     html=(BASE_DIR/"static"/filename).read_text(encoding="utf-8")
     u=current_user(request)
     if u:
-        for k,v in u.items(): html=html.replace("{{"+k.upper()+"}}", str(v))
+        for k,v in u.items():
+            html=html.replace("{{"+k.upper()+"}}", str(v))
     return html
 
 @app.get("/", response_class=HTMLResponse)
@@ -97,6 +99,7 @@ def download_monthly_report(request:Request):
       ["Metric","Value","Notes"],
       ["Total Workers","1248","Riders, drivers, walkers, backroom"],
       ["Active Coordinators","24","Nationwide"],
+      ["Total Cases","414","June 2026"],
       ["Open Cases","96","Pending as of month end"],
       ["Closed Cases","318","Closed this month"],
       ["Average Resolution Time","2.8 days","Target below 3 days"],
@@ -104,7 +107,8 @@ def download_monthly_report(request:Request):
       ["Salary Complaints","78","Top category"],
       ["Accident Cases","56","Safety monitoring"],
       ["Theft/Fraud Cases","37","High risk"],
-      ["Attendance/AWOL Cases","46","Policy monitoring"]
+      ["Attendance/AWOL Cases","46","Policy monitoring"],
+      ["Parcel/Delivery Issues","101","Highest operational category"]
     ]
     output=io.StringIO()
     writer=csv.writer(output)
