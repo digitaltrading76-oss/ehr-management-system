@@ -1,18 +1,20 @@
-# EHR Management System v2.0
+# EHR Live Workflow Demo
 
-Embedded Human Resource Central Command System  
-Powered by Conglomerate Corp
+This version allows you to test the real workflow:
 
-## What is included
+1. Login as coordinator:
+   coor001 / Coor@2026
 
-- Clean project structure
-- Proper logo sizing everywhere
-- Administrator / HR / Coordinator sample login
-- Central Command dashboard
-- Executive BI dashboard and printable report
-- Coordinator portal
-- Bulk document upload pre-review
-- CSV monthly report download
+2. Submit incident report and upload files.
+
+3. Logout.
+
+4. Login as Central Command:
+   administrator / Conglomerate@2026
+
+5. Open Central Case Queue.
+
+6. Review the uploaded coordinator case and see recommendation.
 
 ## Render Settings
 
@@ -24,16 +26,3 @@ pip install -r requirements.txt
 
 Start Command:
 uvicorn main:app --host 0.0.0.0 --port $PORT
-
-## Sample Logins
-
-Administrator:
-administrator / Conglomerate@2026
-
-HR:
-hr001 / Hr@2026
-
-Coordinator:
-coor001 / Coor@2026
-coor002 / Coor@2026
-coor003 / Coor@2026
