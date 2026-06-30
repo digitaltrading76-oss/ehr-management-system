@@ -1,47 +1,25 @@
-# EHR Due Process Workflow
+# EHR Central Command Master Merged v3
 
-Embedded Human Resource Central Command System  
-Powered by Conglomerate Corp
+This is the consolidated package. It retains all approved updates:
+- Central Command dashboard
+- Coordinator portal
+- Strict role-based access control
+- Uploaded supporting file access in case detail
+- Due process workflow
+- Company policy and Philippine labor standards review
+- Central Case Queue
+- Bulk Operations Intake for Excel/CSV/TXT
+- Downloadable bulk action CSV
+- Executive BI reporting dashboard
+- Monthly CSV report download
+- Proper Conglomerate Corp logo sizing
 
-## Purpose
-
-This version makes Philippine labor due process the core workflow.
-
-Coordinator submits incident → system checks:
-- Company policy match
-- Labor standards category
-- Evidence completeness
-- Due process completion
-- Recommended next move
-
-Central Command reviews the case before any NTE, decision, suspension, or dismissal.
-
-## Sample Login
-
-Coordinator:
+## Logins
+administrator / Conglomerate@2026
+hr001 / Hr@2026
 coor001 / Coor@2026
 
-Central Command:
-administrator / Conglomerate@2026
-
-## Render Settings
-
-Root Directory:
-backend
-
-Build Command:
-pip install -r requirements.txt
-
-Start Command:
-uvicorn main:app --host 0.0.0.0 --port $PORT
-
-
-## Bulk Operations Intake
-
-Central Command can upload operations lists in Excel/CSV/TXT format and generate:
-- Bulk coordinator action list
-- IR request instructions
-- NTE instruction flags
-- Payroll verification flags
-- High-risk fraud/theft escalation flags
-- Downloadable CSV template for coordinator action
+## Render
+Root Directory: backend
+Build Command: pip install -r requirements.txt
+Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT

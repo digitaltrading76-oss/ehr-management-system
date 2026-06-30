@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Form, Request, UploadFile, File
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
@@ -51,6 +51,10 @@ def load_bulk_batches():
 def save_bulk_batches(batches):
     BULK_FILE.write_text(json.dumps(batches, indent=2), encoding="utf-8")
 
+def require_central(request):
+    u=current_user(request)
+    return u and u.get('role') in ['administrator','hr']
+
 def current_user(request):
     username=request.session.get("username")
     if not username or username not in USERS:
@@ -84,6 +88,10 @@ def login(request:Request, username:str=Form(""), password:str=Form("")):
     html=render("login.html").replace("<!--ERROR-->", "<div class='error-box'>Invalid username or password.</div>")
     return HTMLResponse(html, status_code=401)
 
+@app.get("/access-denied", response_class=HTMLResponse)
+def access_denied(request:Request):
+    return render("access_denied.html", request)
+
 @app.get("/logout")
 def logout(request:Request):
     request.session.clear()
@@ -92,8 +100,7 @@ def logout(request:Request):
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request:Request):
     user=current_user(request)
-    if not user: return RedirectResponse("/",302)
-    if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
+    if not require_central(request): return RedirectResponse("/access-denied",302)
     cases=load_cases()
     rows="".join([
         f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
@@ -104,8 +111,7 @@ def dashboard(request:Request):
 @app.get("/central-queue", response_class=HTMLResponse)
 def central_queue(request:Request):
     user=current_user(request)
-    if not user: return RedirectResponse("/",302)
-    if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
+    if not require_central(request): return RedirectResponse("/access-denied",302)
     cases=load_cases()
     rows="".join([
         f"<tr><td><a href='/case/{c['case_id']}'>{c['case_id']}</a></td><td>{c['worker_name']}</td><td>{c['worker_type']}</td><td>{c['submitted_by']}</td><td>{c['area']}</td><td>{c['incident_category']}</td><td>{c['due_process_score']}%</td><td>{c['overall_readiness']}%</td><td><span class='pill review'>{c['status']}</span></td></tr>"
@@ -128,7 +134,7 @@ def view_case(case_id:str, request:Request):
     checklist="".join([f"<tr><td>{x['item']}</td><td>{'✅ Complete' if x['status'] else '❌ Missing / Pending'}</td></tr>" for x in a["due_process_checklist"]])
     policy="".join([f"<li><strong>{x.get('possible_violation','')}</strong><br>{x.get('policy_basis','')}<br><em>{x.get('usual_next_step','')}</em></li>" for x in a["policy_assessment"]])
     labor="".join([f"<li><strong>{x.get('labor_category','')}</strong><br>{x.get('legal_note','')}</li>" for x in a["labor_standards_review"]])
-    files="".join([f"<li>{f}</li>" for f in case.get("uploaded_files",[])]) or "<li>No uploaded file</li>"
+    files="".join([f"<li><a href='/case/{case_id}/file/{f}'>{f}</a></li>" for f in case.get("uploaded_files",[])]) or "<li>No uploaded file</li>"
     assessment=json.dumps(a, indent=2)
 
     return render("case_detail.html", request, {
@@ -149,6 +155,19 @@ def view_case(case_id:str, request:Request):
         "FILE_LIST":files,
         "ASSESSMENT":assessment
     })
+
+@app.get("/case/{case_id}/file/{filename}")
+def download_case_file(case_id:str, filename:str, request:Request):
+    user=current_user(request)
+    if not user: return RedirectResponse("/",302)
+    cases=load_cases()
+    case=next((c for c in cases if c["case_id"]==case_id), None)
+    if not case: return HTMLResponse("Case not found",404)
+    if user["role"]=="coordinator" and case["submitted_by"] != user["username"]:
+        return RedirectResponse("/access-denied",302)
+    path=UPLOAD_DIR/case_id/os.path.basename(filename)
+    if not path.exists(): return HTMLResponse("File not found",404)
+    return FileResponse(path, filename=filename)
 
 @app.get("/coordinator-dashboard", response_class=HTMLResponse)
 def coordinator_dashboard(request:Request):
@@ -222,8 +241,7 @@ async def submit_incident_post(request:Request, worker_name:str=Form(""), worker
 @app.get("/bulk-operations", response_class=HTMLResponse)
 def bulk_operations(request:Request):
     user=current_user(request)
-    if not user: return RedirectResponse("/",302)
-    if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
+    if not require_central(request): return RedirectResponse("/access-denied",302)
     batches=load_bulk_batches()
     rows="".join([
         f"<tr><td><a href='/bulk-batch/{b['batch_id']}'>{b['batch_id']}</a></td><td>{b['total_records']}</td><td>{b['summary'].get('high_risk_cases',0)}</td><td>{b['summary'].get('nte_instructions',0)}</td><td>{b['summary'].get('ir_requests',0)}</td><td>{b['created_by']}</td></tr>"
@@ -234,8 +252,7 @@ def bulk_operations(request:Request):
 @app.post("/bulk-operations")
 async def bulk_operations_post(request:Request, bulk_file:UploadFile=File(...), batch_note:str=Form("")):
     user=current_user(request)
-    if not user: return RedirectResponse("/",302)
-    if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
+    if not require_central(request): return RedirectResponse("/access-denied",302)
     content=await bulk_file.read()
     parsed=parse_bulk_file(bulk_file.filename, content)
     assessment=build_bulk_assessment(parsed)
@@ -251,8 +268,7 @@ async def bulk_operations_post(request:Request, bulk_file:UploadFile=File(...), 
 @app.get("/bulk-batch/{batch_id}", response_class=HTMLResponse)
 def view_bulk_batch(batch_id:str, request:Request):
     user=current_user(request)
-    if not user: return RedirectResponse("/",302)
-    if user["role"]=="coordinator": return RedirectResponse("/coordinator-dashboard",302)
+    if not require_central(request): return RedirectResponse("/access-denied",302)
     batch=next((b for b in load_bulk_batches() if b["batch_id"]==batch_id), None)
     if not batch: return HTMLResponse("Batch not found",404)
     rows="".join([
@@ -278,6 +294,19 @@ def download_bulk_template(batch_id:str, request:Request):
     if not batch: return HTMLResponse("Batch not found",404)
     csv_text=make_csv_template(batch["items"])
     return StreamingResponse(iter([csv_text]), media_type="text/csv", headers={"Content-Disposition":f"attachment; filename={batch_id}_coordinator_action_template.csv"})
+
+@app.get("/executive-report", response_class=HTMLResponse)
+def executive_report(request:Request):
+    if not require_central(request): return RedirectResponse("/access-denied",302)
+    return render("executive_report.html", request)
+
+@app.get("/download-monthly-report")
+def download_monthly_report(request:Request):
+    if not require_central(request): return RedirectResponse("/access-denied",302)
+    rows=[["Metric","Value","Notes"],["Open Cases",str(len(load_cases())),"Live submissions"],["Due Process","Enabled","No final action without worker due process"],["Bulk Operations","Enabled","Excel/CSV intake"],["Executive Reporting","Enabled","BI dashboard"]]
+    import csv, io
+    output=io.StringIO(); writer=csv.writer(output); writer.writerows(rows)
+    return StreamingResponse(iter([output.getvalue()]), media_type="text/csv", headers={"Content-Disposition":"attachment; filename=ehr_monthly_operations_report.csv"})
 
 @app.get("/health")
 def health():
