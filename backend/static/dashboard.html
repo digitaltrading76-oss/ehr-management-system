@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EHR Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <h2>EHR SYSTEM</h2>
+    <p>Embedded Human Resource</p>
+    <a class="active" href="/dashboard">Dashboard</a>
+    <a href="/case-investigation">Case Investigation</a>
+    <a href="#">Client Companies</a>
+    <a href="#">Employees</a>
+    <a href="#">Company Policies</a>
+    <a href="#">Notices</a>
+    <a href="#">Reports</a>
+    <a href="/">Logout</a>
+  </div>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Dashboard</h1>
+      <p>Powered by Conglomerate Services</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="metric">0</div>
+        <div class="muted">Open Cases</div>
+      </div>
+      <div class="card">
+        <div class="metric">0</div>
+        <div class="muted">Pending Investigation</div>
+      </div>
+      <div class="card">
+        <div class="metric">0</div>
+        <div class="muted">Pending Notices</div>
+      </div>
+      <div class="card">
+        <div class="metric">0</div>
+        <div class="muted">Closed Cases</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Phase 1 Status</h2>
+      <p>This version contains the core interface and case assessment foundation.</p>
+      <p class="muted">Next phase: database, secure login, client company records, employee records, and file upload.</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Case Investigation</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <h2>EHR SYSTEM</h2>
+    <p>Embedded Human Resource</p>
+    <a href="/dashboard">Dashboard</a>
+    <a class="active" href="/case-investigation">Case Investigation</a>
+    <a href="#">Client Companies</a>
+    <a href="#">Employees</a>
+    <a href="#">Company Policies</a>
+    <a href="#">Notices</a>
+    <a href="#">Reports</a>
+    <a href="/">Logout</a>
+  </div>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Case Investigation</h1>
+      <p>Policy assessment, labor standards review, evidence checklist, and recommendation.</p>
+    </div>
+
+    <div class="card">
+      <h2>Incident / Explanation Input</h2>
+
+      <div class="form-row">
+        <div>
+          <label>Employee Name</label>
+          <input class="form-control" id="employee_name" value="Mary June Melvines Dajay">
+        </div>
+        <div>
+          <label>Position</label>
+          <input class="form-control" id="position" value="Rider">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Incident Date</label>
+          <input class="form-control" id="incident_date" value="2026-06-17">
+        </div>
+        <div>
+          <label>Prior Offense Count</label>
+          <input class="form-control" id="prior_offense_count" type="number" value="0">
+        </div>
+      </div>
+
+      <label>Incident / Explanation Text</label>
+      <textarea id="incident_text">Ako po si Mary June Melvines Dajay ay humihingi ng paumanhin dahil po sa 15 parcel counts po dahil mali ang proof of onhold dahil minsan mahina ang signal ko at hindi ma accurate ang timestamp ko at minsan po ay iba ang area na dala ko po dahil striker. Kung po ako may mga lugar na sobrang hina talaga ang signal at magti-time stamp ako, hindi lumalabas kung saan lugar, petsa at oras lamang ang lumalabas. Pasensya po talaga sa aking nagawa. Sana mabigyan nyo pa po ako ng isang pagkakataon.</textarea>
+
+      <button class="btn" onclick="analyze()">RUN CASE ASSESSMENT</button>
+    </div>
+
+    <div class="card">
+      <h2>Assessment Output</h2>
+      <pre id="result">Click RUN CASE ASSESSMENT...</pre>
+      <button class="btn" onclick="downloadJSON()">DOWNLOAD CASE REPORT</button>
+    </div>
+  </main>
+</div>
+
+<script>
+let latestResult = null;
+
+async function analyze() {
+  const formData = new FormData();
+  formData.append("employee_name", document.getElementById("employee_name").value);
+  formData.append("position", document.getElementById("position").value);
+  formData.append("incident_date", document.getElementById("incident_date").value);
+  formData.append("prior_offense_count", document.getElementById("prior_offense_count").value);
+  formData.append("incident_text", document.getElementById("incident_text").value);
+
+  const res = await fetch("/analyze", { method: "POST", body: formData });
+  latestResult = await res.json();
+  document.getElementById("result").textContent = JSON.stringify(latestResult, null, 2);
+}
+
+function downloadJSON() {
+  if (!latestResult) {
+    alert("Run case assessment first.");
+    return;
+  }
+  const blob = new Blob([JSON.stringify(latestResult, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ehr_case_assessment_report.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

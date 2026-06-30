@@ -1,26 +1,25 @@
-# HR Case AI Web App MVP
+# EHR Management System
 
-This is a starter web app for AI-assisted HR incident assessment.
+Embedded Human Resource Management System  
+Powered by Conglomerate Services
 
-## Features
-- Upload/paste company policy text
-- Submit employee incident/explanation text
-- AI-style rule matching against company policy rules
-- Labor Code fallback when no company policy match is found
-- Missing evidence checklist
-- Follow-up questions
-- Preliminary HR recommendation
-- Downloadable case output as JSON
+## Phase 1 Features
 
-## Important
-This app is for HR decision support only. It should not automatically discipline, suspend, or dismiss employees. HR/legal counsel must make the final decision after due process.
+- Professional login page
+- Dashboard
+- Case Investigation page
+- Company Policy placeholder
+- Client Companies placeholder
+- Case assessment engine
+- Labor standards fallback
+- JSON case report download
 
-## Quick Start
+## Run Locally
 
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate   # Windows
+venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
@@ -31,5 +30,6 @@ Open:
 http://127.0.0.1:8000
 ```
 
-## Optional AI Upgrade
-You may connect OpenAI later by adding API logic inside `analyzer.py`.
+## Notes
+
+This is a decision-support system. Final HR action must be reviewed by authorized personnel after due process.

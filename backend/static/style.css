@@ -1,60 +1,216 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-  padding: 0;
+:root {
+  --navy: #0f2d5c;
+  --navy-dark: #091d3d;
+  --gold: #c9a227;
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
 }
-.container {
-  max-width: 1050px;
-  margin: auto;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.login-body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 30px;
 }
-h1 {
-  margin-bottom: 5px;
-}
-.subtitle {
-  color: #555;
-}
-.card {
+
+.login-card {
+  width: 420px;
   background: white;
-  border-radius: 12px;
-  padding: 22px;
-  margin-top: 20px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  border-radius: 18px;
+  padding: 34px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  text-align: center;
 }
-label {
-  display: block;
-  font-weight: bold;
-  margin-top: 14px;
+
+.logo-circle {
+  width: 72px;
+  height: 72px;
+  background: var(--navy);
+  color: var(--gold);
+  border-radius: 50%;
+  margin: 0 auto 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 800;
+  font-size: 24px;
 }
-input, textarea {
+
+.login-card h1 {
+  font-size: 25px;
+  margin: 8px 0 4px;
+  color: var(--navy);
+}
+
+.login-card .tagline {
+  font-size: 16px;
+  margin: 0;
+  color: var(--text);
+}
+
+.login-card .powered {
+  font-size: 14px;
+  margin: 8px 0 24px;
+  color: var(--muted);
+}
+
+.login-card input, .form-control {
   width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   font-size: 15px;
 }
-textarea {
-  min-height: 170px;
+
+.login-card label, label {
+  display: block;
+  text-align: left;
+  font-weight: 700;
+  margin-top: 14px;
 }
-button {
-  margin-top: 18px;
-  background: #1f3b73;
+
+.btn {
+  width: 100%;
+  background: var(--navy);
   color: white;
+  padding: 13px;
   border: none;
-  padding: 11px 18px;
-  border-radius: 8px;
+  border-radius: 10px;
+  margin-top: 18px;
+  font-weight: 700;
   cursor: pointer;
 }
-button:hover {
-  background: #14274e;
+
+.btn:hover {
+  background: var(--navy-dark);
 }
+
+.login-footer {
+  margin-top: 22px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: var(--navy);
+  color: white;
+  padding: 22px;
+}
+
+.sidebar h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.sidebar p {
+  margin: 4px 0 24px;
+  color: #d1d5db;
+  font-size: 13px;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 12px 10px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.sidebar a:hover, .sidebar a.active {
+  background: rgba(255,255,255,.14);
+}
+
+.main {
+  flex: 1;
+  padding: 28px;
+}
+
+.topbar {
+  background: white;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.topbar p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  margin-bottom: 18px;
+}
+
+.metric {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+}
+
 pre {
   background: #111827;
   color: #d1fae5;
   padding: 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow-x: auto;
-  min-height: 260px;
+  min-height: 300px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }

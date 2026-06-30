@@ -2,17 +2,24 @@ from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-import json
 from analyzer import analyze_case
 
-app = FastAPI(title="HR Case AI Web App MVP")
+app = FastAPI(title="EHR Management System")
 
 BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
-def home():
-    return (BASE_DIR / "static" / "index.html").read_text(encoding="utf-8")
+def login():
+    return (BASE_DIR / "static" / "login.html").read_text(encoding="utf-8")
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard():
+    return (BASE_DIR / "static" / "dashboard.html").read_text(encoding="utf-8")
+
+@app.get("/case-investigation", response_class=HTMLResponse)
+def case_investigation():
+    return (BASE_DIR / "static" / "case_investigation.html").read_text(encoding="utf-8")
 
 @app.post("/analyze")
 def analyze(
@@ -33,4 +40,4 @@ def analyze(
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "system": "EHR Management System"}

@@ -1,5 +1,4 @@
-from typing import Dict, List
-import re
+from typing import Dict
 
 COMPANY_RULES = [
     {
@@ -24,7 +23,7 @@ COMPANY_RULES = [
     {
         "category": "Performance of Duties",
         "violation": "Simple Negligence",
-        "keywords": ["negligence", "mistake", "failed to observe", "careless", "delay", "on hold", "wrong tagging", "gps", "timestamp", "signal"],
+        "keywords": ["negligence", "mistake", "failed to observe", "careless", "delay", "on hold", "wrong tagging", "gps", "timestamp", "signal", "parcel"],
         "condition": "Failure to observe the degree of diligence demanded by the situation, exposing the company to unnecessary risk.",
         "penalties": {
             "1": "Written Reprimand",
@@ -108,7 +107,7 @@ COMPANY_RULES = [
     }
 ]
 
-LABOR_CODE_FALLBACK = [
+LABOR_STANDARDS_FALLBACK = [
     {
         "classification": "Serious Misconduct",
         "when_to_consider": "Intentional wrongful conduct connected to work, serious in nature, and not merely a minor error.",
@@ -186,14 +185,14 @@ def analyze_case(employee_name: str, position: str, incident_date: str, incident
         policy_match = {
             "found": False,
             "confidence": 0,
-            "message": "No exact company policy match found. Refer to Philippine labor standards as additional confirmation and flag for HR/legal review."
+            "message": "No exact company policy match found. Refer to labor standards as additional confirmation and flag for authorized review."
         }
 
     missing_evidence = [
         "Supervisor incident report",
         "Employee written explanation",
         "Witness statement",
-        "System/app logs",
+        "System or application logs",
         "GPS or timestamp logs",
         "Prior disciplinary record",
         "Proof of business impact or damage"
@@ -226,7 +225,7 @@ def analyze_case(employee_name: str, position: str, incident_date: str, incident
 
     labor_fallback = []
     if not policy_match["found"] or policy_match.get("confidence", 0) < 50:
-        labor_fallback = LABOR_CODE_FALLBACK
+        labor_fallback = LABOR_STANDARDS_FALLBACK
 
     evidence_strength = 30
     if len(text) > 300:
@@ -240,26 +239,26 @@ def analyze_case(employee_name: str, position: str, incident_date: str, incident
     elif policy_match.get("confidence", 0) >= 30:
         recommendation = "Continue investigation. Ask follow-up questions and require supporting evidence before recommending discipline."
     else:
-        recommendation = "Insufficient information. No disciplinary recommendation yet. Refer to HR/legal review and gather more facts."
+        recommendation = "Insufficient information. No disciplinary recommendation yet. Refer to authorized review and gather more facts."
 
     return {
-        "case_status": "For HR Investigation",
+        "case_status": "For Investigation",
         "employee": {
             "name": employee_name,
             "position": position,
             "incident_date": incident_date
         },
         "incident_summary": text[:1200],
-        "company_policy_assessment": policy_match,
-        "labor_code_fallback": labor_fallback,
+        "policy_assessment": policy_match,
+        "labor_standards_review": labor_fallback,
         "missing_evidence": list(dict.fromkeys(missing_evidence)),
         "follow_up_questions": list(dict.fromkeys(follow_up_questions)),
         "scores": {
-            "company_policy_match": policy_match.get("confidence", 0),
+            "policy_match": policy_match.get("confidence", 0),
             "evidence_strength": evidence_strength,
             "due_process_completion": 10,
             "overall_confidence": int((policy_match.get("confidence", 0) + evidence_strength) / 2)
         },
         "recommendation": recommendation,
-        "safeguard": "AI output is preliminary only. Final HR action must be reviewed by authorized HR/legal personnel after due process."
+        "safeguard": "System output is preliminary only. Final action must be reviewed by authorized personnel after due process."
     }
