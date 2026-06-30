@@ -1,18 +1,18 @@
-# EHR Executive BI Dashboard Update
+# EHR Management System v2.0
 
-Includes:
-- Enterprise-style Central Command dashboard
-- Executive BI report center
-- Color-coded KPI cards
-- Case trend graph
-- Case distribution visual chart
-- Resolution performance bars
-- Coordinator leaderboard
-- Risk indicators
-- Downloadable monthly CSV report
-- Print / Save as PDF report page
+Embedded Human Resource Central Command System  
+Powered by Conglomerate Corp
+
+## What is included
+
+- Clean project structure
+- Proper logo sizing everywhere
+- Administrator / HR / Coordinator sample login
+- Central Command dashboard
+- Executive BI dashboard and printable report
 - Coordinator portal
-- Bulk incident document pre-review
+- Bulk document upload pre-review
+- CSV monthly report download
 
 ## Render Settings
 
@@ -25,22 +25,15 @@ pip install -r requirements.txt
 Start Command:
 uvicorn main:app --host 0.0.0.0 --port $PORT
 
-## Logins
+## Sample Logins
 
-administrator / Conglomerate@2026  
-hr001 / Hr@2026  
-coor001 / Coor@2026  
+Administrator:
+administrator / Conglomerate@2026
+
+HR:
+hr001 / Hr@2026
+
+Coordinator:
+coor001 / Coor@2026
 coor002 / Coor@2026
-
-
-## Logo Update
-
-Conglomerate Corp logo has been inserted into:
-- Login page
-- Central Command dashboard sidebar
-- Executive Report sidebar and print report
-- Coordinator portal sidebar
-- Submit Incident page sidebar
-
-Logo path:
-backend/static/assets/conglomerate_logo.png
+coor003 / Coor@2026

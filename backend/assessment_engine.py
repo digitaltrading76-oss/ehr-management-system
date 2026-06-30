@@ -1,22 +1,31 @@
 def assess_documents(submitted_by, area, worker_name, worker_type, incident_category, incident_summary, files):
     text = (incident_category + " " + incident_summary).lower()
-    possible = []
-    if any(k in text for k in ["salary","wage","pay","underpaid","deduction"]):
-        possible.append({"classification":"Salary / Wage Concern","review_basis":"Check payroll records, attendance, deductions, and proof of payment.","recommended_action":"Request payroll computation, attendance logs, proof of payout, and explanation of deductions."})
-    if any(k in text for k in ["accident","injury","hospital","crash","medical"]):
-        possible.append({"classification":"Accident / Safety Incident","review_basis":"Check accident report, photos, medical records, police/barangay report if applicable.","recommended_action":"Prioritize documentation and welfare assistance verification."})
-    if any(k in text for k in ["theft","fraud","steal","missing parcel","cash","remittance"]):
-        possible.append({"classification":"Possible Theft / Fraud","review_basis":"Possible serious misconduct, dishonesty, breach of trust, or company property issue.","recommended_action":"Require evidence chain, inventory logs, witness statements, and worker explanation."})
-    if any(k in text for k in ["awol","absent","attendance","late"]):
-        possible.append({"classification":"Attendance / Timekeeping Concern","review_basis":"Check attendance policy and prior offense record.","recommended_action":"Require attendance logs, schedule, leave records, and coordinator statement."})
-    if any(k in text for k in ["parcel","on hold","gps","timestamp","delivery","damage"]):
-        possible.append({"classification":"Parcel / Delivery Operations Issue","review_basis":"Possible performance of duties or negligence depending on proof.","recommended_action":"Require delivery app logs, GPS/timestamp records, parcel status history, and client complaint if any."})
-    if not possible:
-        possible.append({"classification":"Unclassified Incident","review_basis":"No direct policy match from submitted summary.","recommended_action":"Request more complete facts before forwarding as formal case."})
+    findings = []
 
-    uploaded_names = [x["filename"] for x in files if x.get("filename")]
-    readiness = min(35 + len(uploaded_names)*10 + (15 if len(incident_summary)>120 else 0), 95)
-    status = "Ready for Central Command review" if readiness >= 75 else "Can be submitted, but follow-up evidence is likely required" if readiness >= 50 else "Incomplete. Coordinator should add more details before submission"
+    rules = [
+        (["salary","wage","pay","underpaid","deduction"], "Salary / Wage Concern", "Check payroll records, attendance logs, deductions, and proof of payment.", "Request payroll computation, attendance record, payout proof, and explanation of deductions."),
+        (["accident","injury","hospital","crash","medical"], "Accident / Safety Incident", "Check accident report, photos, medical record, and police/barangay report if applicable.", "Prioritize documentation and welfare assistance verification."),
+        (["theft","fraud","steal","missing parcel","cash","remittance"], "Possible Theft / Fraud", "Possible serious misconduct, dishonesty, breach of trust, or company property issue.", "Require evidence chain, inventory logs, witness statements, and worker explanation."),
+        (["awol","absent","attendance","late"], "Attendance / Timekeeping Concern", "Check attendance policy, schedule, leave records, and prior offense history.", "Require attendance logs, duty schedule, leave records, and coordinator statement."),
+        (["parcel","on hold","gps","timestamp","delivery","damage"], "Parcel / Delivery Operations Issue", "Possible performance of duties or negligence depending on proof.", "Require delivery app logs, GPS/timestamp records, parcel status history, and client complaint if any.")
+    ]
+
+    for keys, cls, basis, action in rules:
+        if any(k in text for k in keys):
+            findings.append({"classification": cls, "review_basis": basis, "recommended_action": action})
+
+    if not findings:
+        findings.append({"classification":"Unclassified Incident","review_basis":"No direct policy match from submitted summary.","recommended_action":"Request more complete facts before forwarding as a formal case."})
+
+    names=[x["filename"] for x in files if x.get("filename")]
+    readiness=min(35 + len(names)*10 + (15 if len(incident_summary)>120 else 0), 95)
+
+    if readiness >= 75:
+        status="Ready for Central Command review"
+    elif readiness >= 50:
+        status="Can be submitted, but follow-up evidence is likely required"
+    else:
+        status="Incomplete. Coordinator should add more details before submission"
 
     return {
         "submission_status": status,
@@ -24,10 +33,17 @@ def assess_documents(submitted_by, area, worker_name, worker_type, incident_cate
         "area": area,
         "worker": {"name": worker_name, "type": worker_type},
         "incident_category": incident_category,
-        "uploaded_files_count": len(uploaded_names),
-        "uploaded_files": uploaded_names,
-        "preliminary_assessment": possible,
-        "missing_or_recommended_documents": ["Coordinator incident report","Worker written explanation received by coordinator","Supporting photos or screenshots","Witness statement, if any","System logs or records","Prior offense record, if any"],
+        "uploaded_files_count": len(names),
+        "uploaded_files": names,
+        "preliminary_assessment": findings,
+        "missing_or_recommended_documents": [
+            "Coordinator incident report",
+            "Worker written explanation received by coordinator",
+            "Supporting photos or screenshots",
+            "Witness statement, if any",
+            "System logs or records",
+            "Prior offense record, if any"
+        ],
         "readiness_score": readiness,
-        "recommended_next_step": "Submit to Central Command after completing missing documents and confirming facts."
+        "recommended_next_step": "Complete missing facts/documents, then submit to Central Command for formal review."
     }
