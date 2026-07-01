@@ -99,3 +99,40 @@ Updates:
 - Removed technical phrase “Hard Separated Routes” from the login and visible pages.
 - Removed coordinator portal warning text saying coordinator cannot access EHR Command Center pages.
 - Simplified branding to EHR / Embedded Human Resource.
+
+
+## v7.0 Case Assessment Engine
+
+Major added modules:
+- backend/report_engine.py
+- Editable DOCX case assessment report generator
+- Central EHR case assessment report page upgraded into professional HR report format
+- Evidence matrix
+- Facts established from submitted documents
+- Company Code of Conduct review first
+- Philippine Labor Standards reference second
+- Missing documents list
+- Recommended next actions
+- Downloadable editable Word report per case
+
+Changed files:
+- backend/main.py
+- backend/report_engine.py
+- backend/static/case_detail.html
+- backend/static/css/style.css
+- backend/requirements.txt
+- backend/static/login.html
+
+Important:
+This version keeps the existing coordinator/Central EHR separation and only adds the assessment/report engine.
+
+
+## v7.1 Fix
+
+Fixed Central Case Detail route so all v7 report placeholders are populated correctly:
+- Evidence matrix
+- Facts list
+- Recommended actions
+- Labor law reference rows
+- Evidence assessment level
+- Downloadable Word report link

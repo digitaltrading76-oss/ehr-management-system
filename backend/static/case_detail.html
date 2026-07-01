@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EHR Case Assessment Report</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+<div class="sidebar"><div class="brand"><img class="brand-logo" src="/static/images/conglomerate_logo_icon.png"><div><h2>EHR</h2><p>Embedded Human Resource<br>Powered by Conglomerate Corp</p></div></div><div class="menu-title">EHR Command Center</div><a href="/dashboard">🏠 Dashboard</a><a class="active" href="/central-queue">📥 Case Queue</a><a href="/bulk-operations">📦 Bulk Operations</a><a href="/executive-report">📈 Executive Report</a><a href="#">⚖️ Notices & Decisions</a><a href="/logout">↪ Logout</a></div>
+<main class="main">
+  <div class="header">
+    <div class="header-left">
+      <h1>EHR Case Assessment Report: {{CASE_ID}}</h1>
+      <p>Company rules first, labor standards second, and recommendations based only on submitted documents.</p>
+    </div>
+    <div class="header-right">
+      <a class="btn gold" href="/case/{{CASE_ID}}/download-assessment-docx">Download Editable Word Report</a>
+      <a class="btn" href="/central-queue">Back to Queue</a>
+    </div>
+  </div>
+
+  <div class="content">
+    {{NOTICE_ACK}}
+
+    <div class="metrics">
+      <div class="card metric-card blue">
+        <div class="icon blue-bg">👤</div>
+        <div>
+          <h3>Worker</h3>
+          <div class="num" style="font-size:20px">{{WORKER_NAME}}</div>
+          <small>{{WORKER_TYPE}}</small>
+        </div>
+      </div>
+      <div class="card metric-card orange">
+        <div class="icon orange-bg">📁</div>
+        <div>
+          <h3>Review</h3>
+          <div class="num">{{DUE_PROCESS}}%</div>
+          <small>{{STATUS}}</small>
+        </div>
+      </div>
+      <div class="card metric-card green">
+        <div class="icon green-bg">📊</div>
+        <div>
+          <h3>Overall Readiness</h3>
+          <div class="num">{{READINESS}}%</div>
+          <small>EHR review score</small>
+        </div>
+      </div>
+      <div class="card metric-card red">
+        <div class="icon red-bg">➡</div>
+        <div>
+          <h3>Recommended Next Move</h3>
+          <div style="font-weight:800">{{NEXT_MOVE}}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-grid">
+      <div class="score-box"><span>Company Policy Match</span><strong>{{POLICY_SCORE}}%</strong></div>
+      <div class="score-box"><span>Labor Standards Relevance</span><strong>{{LABOR_SCORE}}%</strong></div>
+      <div class="score-box"><span>Evidence Sufficiency</span><strong>{{EVIDENCE_SCORE}}%</strong></div>
+      <div class="score-box"><span>Review Completion</span><strong>{{DUE_PROCESS_SCORE}}%</strong></div>
+      <div class="score-box"><span>Overall Readiness</span><strong>{{OVERALL_SCORE}}%</strong></div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>1. Case Information</h3>
+      <table class="table">
+        <tbody>
+          <tr><th>Case ID</th><td>{{CASE_ID}}</td></tr>
+          <tr><th>Worker Name</th><td>{{WORKER_NAME}}</td></tr>
+          <tr><th>Worker Type</th><td>{{WORKER_TYPE}}</td></tr>
+          <tr><th>Area</th><td>{{AREA}}</td></tr>
+          <tr><th>Incident Category</th><td>{{INCIDENT_CATEGORY}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>2. Uploaded Supporting Files</h3>
+      <p>Central EHR can open or download the actual files submitted by the coordinator.</p>
+      <ul>{{FILE_LIST}}</ul>
+    </div>
+
+    <div class="assessment-section">
+      <h3>3. Facts Established From Submitted Documents</h3>
+      <ul>{{FACTS_LIST}}</ul>
+    </div>
+
+    <div class="assessment-section">
+      <h3>4. Documents Received / Evidence Matrix</h3>
+      <table class="table">
+        <thead>
+          <tr><th>Document Type</th><th>Status</th><th>Remarks</th></tr>
+        </thead>
+        <tbody>{{EVIDENCE_ROWS}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>5. Company Code of Conduct Review</h3>
+      <p>The company rules and code of conduct are checked first before any labor standards reference.</p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Policy Category</th>
+            <th>Possible Violation</th>
+            <th>Policy Basis</th>
+            <th>Usual Next Step</th>
+          </tr>
+        </thead>
+        <tbody>{{POLICY_ROWS}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>6. Labor Standards Reference</h3>
+      <p>Labor law references are treated as secondary review points and should be reviewed by authorized HR/legal personnel.</p>
+      <table class="table">
+        <thead>
+          <tr><th>Reference</th><th>Relevant Text / Principle</th><th>Caution</th></tr>
+        </thead>
+        <tbody>{{LABOR_ROWS}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>7. Review Checklist</h3>
+      <table class="table">
+        <thead><tr><th>Requirement</th><th>Status</th></tr></thead>
+        <tbody>{{CHECKLIST}}</tbody>
+      </table>
+    </div>
+
+    <div class="assessment-section">
+      <h3>8. Missing Documents / Follow-up Needed</h3>
+      <ul>{{MISSING_LIST}}</ul>
+    </div>
+
+    <div class="assessment-section">
+      <h3>9. Evidence Assessment</h3>
+      <div class="recommendation-box">{{EVIDENCE_LEVEL}}<br><br>{{EVIDENCE_EXPLANATION}}</div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>10. Preliminary HR Assessment</h3>
+      <div class="recommendation-box">{{NEXT_MOVE}}</div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>11. Recommended Next Actions</h3>
+      <ul>{{ACTION_LIST}}</ul>
+    </div>
+
+    <div class="assessment-section">
+      <h3>12. Extracted Content Preview</h3>
+      <div class="preview-box">{{EXTRACTED_PREVIEW}}</div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>13. Safeguard</h3>
+      <div class="safeguard-box">{{SAFEGUARD}}</div>
+    </div>
+
+    <div class="assessment-section">
+      <h3>14. Send Status / Memo / Notice to Coordinator Portal</h3>
+      <form method="post" action="/case/{{CASE_ID}}/central-notice" enctype="multipart/form-data">
+        <div class="form-row">
+          <div>
+            <label>Status / Notice Type</label>
+            <select name="notice_type">
+              <option>Waiting for EHR Notification</option>
+              <option>Additional Documents Required</option>
+              <option>Notice to Explain Issued</option>
+              <option>Notice of Decision Uploaded</option>
+              <option>Notice of Dismissal Uploaded</option>
+              <option>Floating Status Notice Uploaded</option>
+              <option>Case Closed</option>
+            </select>
+          </div>
+          <div>
+            <label>Upload Memo / Notice File</label>
+            <input type="file" name="notice_file" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+          </div>
+        </div>
+        <label>Explanation / Instruction to Coordinator</label>
+        <textarea name="remarks" placeholder="Example: Please print this memo, serve it to the worker, and upload signed receiving copy."></textarea>
+        <button class="btn" type="submit">SEND TO COORDINATOR PORTAL</button>
+      </form>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const alertBox = document.querySelector(".success-alert");
+  if(alertBox){
+    setTimeout(function(){
+      window.alert(alertBox.textContent.trim());
+    }, 300);
+  }
+});
+</script>
+</body>
+</html>
